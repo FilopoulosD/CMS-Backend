@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const database = require('./middlewares/database');
 
+
 // Load Models
 const User = require('./models/Users');
 
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 });
 
 // Post users route to create first document in Database 
+// Create user
 app.post('/users', async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
@@ -33,6 +35,18 @@ app.post('/users', async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
+// Get All Users
+app.get('/users', async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
