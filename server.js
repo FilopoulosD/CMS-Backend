@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const database = require('./middlewares/database');
+const users = require('./routes/users');
 
 
 // Load Models
@@ -17,36 +18,15 @@ app.use(cors());
 
 // Use JSON for res.json (Will be removed propably)
 app.use(express.json());
+
+// Load routes
+app.use('/', users);
+
+
 // Home Route
 app.get('/', (req, res) => {
     res.json({ message: 'Hello from Express API' });
 });
-
-// Post users route to create first document in Database 
-// Create user
-app.post('/users', async (req, res) => {
-    try {
-        const { name, email, password, role } = req.body;
-        const user = new User({ name, email, password, role });
-        await user.save();
-        res.status(201).json({ message: 'User created successfully', user });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-});
-// Get All Users
-app.get('/users', async (req, res) => {
-    try {
-        const users = await User.find();
-        res.json(users);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-});
-
-
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
