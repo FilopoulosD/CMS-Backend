@@ -11,21 +11,10 @@ const domainSchema = new mongoose.Schema({
     },
     parentDomain: {
         type: String,
-    },
-    owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    themeConfig: {
-        primaryColor: { type: String, default: '#0d0047' },
-        logoUrl: { type: String },
-        faviconUrl: { type: String },
-    },
-    status: {
-        type: String,
-        enum: ['active', 'maintenance', 'suspended'],
-        default: 'active'
+        lowercase: true,
+        trim: true,
+        default: null,
+        index: true
     }
 }, { timestamps: true });
 
