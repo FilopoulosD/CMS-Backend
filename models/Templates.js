@@ -43,8 +43,9 @@ const templateSchema = new mongoose.Schema({
         required: true
     },
     fields: {
-        type: [fieldSchema],
+        type: [FieldSchema],
         default: []
     }
 })
+
 module.exports = mongoose.model('Template', templateSchema);

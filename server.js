@@ -2,26 +2,28 @@ const express = require('express');
 const cors = require('cors');
 const database = require('./middlewares/database');
 const users = require('./routes/users');
-
-
-// Load Models
-const User = require('./models/Users');
+const domains = require('./routes/domains');
+const templates = require('./routes/templates');
 
 // Load .env variables
 require('dotenv').config();
+
 // Express initialize 
 const app = express();
+
 //Connect to DB
 database();
+
 // Use CORS for Next.JS
 app.use(cors());
 
-// Use JSON for res.json (Will be removed propably)
+// Use JSON for res.json (Will be removed probably)
 app.use(express.json());
 
 // Load routes
 app.use('/', users);
-
+app.use('/', domains);
+app.use('/', templates);
 
 // Home Route
 app.get('/', (req, res) => {
