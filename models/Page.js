@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { validateSlug } = require('../validators/pageValidator');
 
 const pageSchema = new mongoose.Schema({
     name: {
@@ -14,7 +15,11 @@ const pageSchema = new mongoose.Schema({
     slug: {
         type: String,
         required: true,
-        lowercase: true
+        lowercase: true,
+        validate: {
+            validator: validateSlug,
+            message: 'Slug is not valid. It must only contain lowercase letters, numbers, and hyphens.'
+        }
     },
     template: {
         type: mongoose.Schema.Types.ObjectId,
@@ -37,5 +42,7 @@ const pageSchema = new mongoose.Schema({
 
 
 }, { timestamps: true });
+
+pageSchema.index({ slug: 1, domain: 1 }, { unique: true });
 
 module.exports = mongoose.model('Page', pageSchema);

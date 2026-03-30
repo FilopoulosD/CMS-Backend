@@ -4,10 +4,19 @@ const auth = require("../middlewares/authMiddleware");
 
 const templateController = require('../controllers/templates');
 
+// Get all templates
 router.get('/templates', auth.authMiddleware, templateController.getTemplates);
 
-router.post('/templates/new', auth.authMiddleware, templateController.newTemplate);
+// Create a new template
+router.post('/template/new', auth.authMiddleware, templateController.newTemplate);
 
-router.get('/templates/:id', auth.authMiddleware, templateController.getTemplate);
+// Get a single template by ID
+router.get('/template/:id', auth.authMiddleware, templateController.getTemplate);
+
+// Update an existing template
+router.put('/template/:id', auth.authMiddleware, templateController.updateTemplate);
+
+// Delete an existing template
+router.delete('/template/:id', auth.authMiddleware, templateController.deleteTemplate);
 
 module.exports = router;

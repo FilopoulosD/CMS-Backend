@@ -40,12 +40,13 @@ const FieldSchema = new mongoose.Schema({
 const templateSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     fields: {
         type: [FieldSchema],
         default: []
     }
-})
+}, { timestamps: true });
 
 module.exports = mongoose.model('Template', templateSchema);

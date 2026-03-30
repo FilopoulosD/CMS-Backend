@@ -15,7 +15,20 @@ const getUsers = async (req, res) => {
 
 const newUser = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role } = req.body || {};
+
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: "Name, email, and password are required" });
+        }
+
+        if (!name) {
+            return res.status(400).json({ message: "Name can't be empty" });
+        } else if (!email) {
+            return res.status(400).json({ message: "Email can't be empty" });
+        } else if (!password) {
+            return res.status(400).json({ message: "Password can't be empty" });
+        }
+
         if (validateEmail(email) && validatePassword(password)) {
             const hashedPassword = await bcrypt.hash(password, 12);
             const user = new User({ name, email, password: hashedPassword, role });
@@ -35,10 +48,16 @@ const newUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password } = req.body || {};
 
-        if (!email || !password) {
+        if (!email && !password) {
             return res.status(400).json({ message: "Email and password are required" });
+        }
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+        if (!password) {
+            return res.status(400).json({ message: "Password is required" });
         }
         if (!validateEmail(email)) {
             return res.status(400).json({ message: "Invalid email format" });
@@ -47,10 +66,13 @@ const loginUser = async (req, res) => {
         if (!user) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
+
         const isMatch = await bcrypt.compare(password, user.password);
+
         if (!isMatch) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
+
         const token = generateJWToken(user);
 
         res.status(200).json({

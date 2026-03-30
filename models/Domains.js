@@ -10,7 +10,8 @@ const domainSchema = new mongoose.Schema({
         index: true
     },
     parentDomain: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Domains',
         lowercase: true,
         trim: true,
         default: null,
