@@ -17,7 +17,7 @@ const app = express();
 database();
 
 // Enable Mongoose debug mode for development
-mongoose.set('debug', true);
+// mongoose.set('debug', true);
 
 // Use CORS for Next.JS
 app.use(cors());

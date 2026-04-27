@@ -1,4 +1,5 @@
-const Page = require("../models/Page");
+const Page = require("../models/Pages");
+const Template = require("../models/Templates");
 
 // Get all pages from a specific domain
 const getPages = async (req, res) => {
@@ -20,15 +21,32 @@ const getPages = async (req, res) => {
 // Create a new page
 const createPage = async (req, res) => {
     try {
-        const { name, domain, slug } = req.body;
+        const { name, domain, slug, template: templateId } = req.body;
 
-        if (!name || !domain || !slug) {
+        if (!name || !domain || !slug || !templateId) {
             return res.status(400).json({ message: "Name, domain, and slug are required" });
         }
 
         const author = req.user;
 
-        const page = new Page({ name, domain, slug, author });
+        const template = await Template.findById(templateId);
+
+        if (!template) {
+            return res.status(404).json({ message: "Template not found" });
+        }
+
+        // Initialize content based on template fields
+        const content = template.fields.map(field => ({
+            name: field.name,
+            type: field.type,
+            value: field.type === 'repeater' ? field.subfields.map(subfield => ({
+                name: subfield.name,
+                type: subfield.type,
+                value: null // Default value for subfields
+            })) : null // Default value for non-repeater fields
+        }));
+
+        const page = new Page({ name, domain, slug, template: templateId, author, content });
         await page.save();
 
         res.status(201).json({ message: 'Page created successfully', page });
@@ -68,24 +86,82 @@ const getPage = async (req, res) => {
 const updatePage = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, domain, slug, template, content, seo } = req.body;
+        const { name, domain, slug, templateId, content, seo } = req.body;
 
-        if (!name && !domain && !slug && !template && !content && !seo) {
+        if (!name && !domain && !slug && !templateId && !content && !seo) {
             return res.status(400).json({ message: "At least one field is required to update" });
         }
 
-        const updatedPage = await Page.findByIdAndUpdate(id,
+        const page = await Page.findById(id);
+        if (!page) {
+            return res.status(404).json({ message: "Page not found" });
+        }
+
+        let template = null;
+        if (templateId) {
+            template = await Template.findById(templateId);
+            if (!template) {
+                return res.status(404).json({ message: "Template not found" });
+            }
+        } else {
+            // Use the existing template if no new template is provided
+            template = await Template.findById(page.template);
+        }
+
+        // Validate and map the content to the template fields
+        let updatedContent = page.content; // Default to existing content
+
+        if (content) {
+            updatedContent = template.fields.map(field => {
+                const incomingField = content.find(c => c.name === field.name);
+
+                if (!incomingField) {
+                    // If no content is provided for this field, keep the existing value or set default
+                    return {
+                        name: field.name,
+                        type: field.type,
+                        value: field.type === 'repeater' ? field.subfields.map(subfield => ({
+                            name: subfield.name,
+                            type: subfield.type,
+                            value: null // Default value for subfields
+                        })) : null,
+                        subfields: field.subfields || []
+                    };
+                }
+
+                // Map the incoming content to the proper field
+                return {
+                    name: field.name,
+                    type: field.type,
+                    value: field.type === 'repeater' ? field.subfields.map(subfield => {
+                        const incomingSubfield = incomingField.subfields.find(sf => sf.name === subfield.name);
+                        return {
+                            name: subfield.name,
+                            type: subfield.type,
+                            value: incomingSubfield ? incomingSubfield.value : null
+                        };
+                    }) : incomingField.value,
+                    subfields: field.subfields || []
+                };
+            });
+        }
+
+        // Update the page
+        const updatedPage = await Page.findByIdAndUpdate(
+            id,
             {
                 name,
                 domain,
                 slug,
-                template,
-                content,
+                template: templateId || page.template,
+                content: updatedContent,
                 seo
-            }, {
-            new: true,
-            runValidators: true
-        });
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        );
 
         if (!updatedPage) {
             return res.status(404).json({ message: "Page not found" });

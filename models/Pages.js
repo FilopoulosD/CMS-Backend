@@ -1,6 +1,38 @@
 const mongoose = require('mongoose');
 const { validateSlug } = require('../validators/pageValidator');
 
+// Subfield schema for content
+const ContentSubfieldSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    type: {
+        type: String,
+        required: true,
+        enum: ['text', 'textarea', 'richtext', 'image', 'number', 'boolean', 'url']
+    },
+    value: mongoose.Schema.Types.Mixed // Can store any type of value
+});
+
+// Field schema for content
+const ContentFieldSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    type: {
+        type: String,
+        required: true,
+        enum: ['text', 'textarea', 'richtext', 'image', 'number', 'boolean', 'url', 'repeater']
+    },
+    value: mongoose.Schema.Types.Mixed, // Can store any type of value
+    subfields: {
+        type: [ContentSubfieldSchema],
+        default: []
+    }
+});
+
 const pageSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -31,8 +63,8 @@ const pageSchema = new mongoose.Schema({
         required: true
     },
     content: {
-        type: mongoose.Schema.Types.Mixed,
-        default: {}
+        type: [ContentFieldSchema],
+        default: []
     },
     seo: {
         metaTitle: String,
