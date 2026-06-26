@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const database = require('./middlewares/database');
+const connectDB = require('./middlewares/database');
 const users = require('./routes/users');
 const domains = require('./routes/domains');
 const templates = require('./routes/templates');
@@ -14,7 +14,7 @@ require('dotenv').config();
 const app = express();
 
 //Connect to DB
-database();
+connectDB();
 
 // Enable Mongoose debug mode for development
 // mongoose.set('debug', true);

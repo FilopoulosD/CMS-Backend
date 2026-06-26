@@ -1,22 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const auth = require("../middlewares/authMiddleware");
+const { authMiddleware } = require("../middlewares/authMiddleware");
 
 const domainController = require('../controllers/domains');
+const {roleMiddleware} = require("../middlewares/roleMiddleware");
 
 // Get all domains
-router.get('/domains', auth.authMiddleware, domainController.getDomains);
+router.get('/domains', authMiddleware, roleMiddleware('admin'), domainController.getDomains);
 
 // Create a new domain
-router.post('/domain/new', auth.authMiddleware, domainController.newDomain);
+router.post('/domain/new', authMiddleware, roleMiddleware('admin'), domainController.newDomain);
 
 // Get a single domain by ID
-router.get('/domain/:id', auth.authMiddleware, domainController.getDomain);
+router.get('/domain/:id', authMiddleware, roleMiddleware('admin'), domainController.getDomain);
 
 // Update an existing domain
-router.put('/domain/:id', auth.authMiddleware, domainController.updateDomain);
+router.put('/domain/:id', authMiddleware, roleMiddleware('admin'), domainController.updateDomain);
 
 // Delete an existing domain
-router.delete('/domain/:id', auth.authMiddleware, domainController.deleteDomain);
+router.delete('/domain/:id', authMiddleware, roleMiddleware('admin'), domainController.deleteDomain);
 
 module.exports = router;

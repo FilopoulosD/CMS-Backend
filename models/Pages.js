@@ -1,36 +1,15 @@
 const mongoose = require('mongoose');
 const { validateSlug } = require('../validators/pageValidator');
 
-// Subfield schema for content
-const ContentSubfieldSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    type: {
-        type: String,
-        required: true,
-        enum: ['text', 'textarea', 'richtext', 'image', 'number', 'boolean', 'url']
-    },
-    value: mongoose.Schema.Types.Mixed // Can store any type of value
-});
-
 // Field schema for content
 const ContentFieldSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
+    name: { type: String, required: true },
     type: {
         type: String,
         required: true,
         enum: ['text', 'textarea', 'richtext', 'image', 'number', 'boolean', 'url', 'repeater']
     },
-    value: mongoose.Schema.Types.Mixed, // Can store any type of value
-    subfields: {
-        type: [ContentSubfieldSchema],
-        default: []
-    }
+    value: mongoose.Schema.Types.Mixed
 });
 
 const pageSchema = new mongoose.Schema({

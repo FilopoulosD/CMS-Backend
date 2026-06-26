@@ -23,8 +23,17 @@ const createPage = async (req, res) => {
     try {
         const { name, domain, slug, template: templateId } = req.body;
 
-        if (!name || !domain || !slug || !templateId) {
-            return res.status(400).json({ message: "Name, domain, and slug are required" });
+        // if (!name || !domain || !slug || !templateId) {
+        //     return res.status(400).json({ message: "Name, domain, and slug are required" });
+        // }
+        if(!name){
+            return res.status(400).json({ message: "Page name is required" });
+        }else if(!slug){
+            return res.status(400).json({ message: "Page slug is required" });
+        }else if(!templateId){
+            return res.status(400).json({ message: "Template is required" });
+        }else if (!domain){
+            return res.status(400).json({ message: "Domain is required" });
         }
 
         const author = req.user;
@@ -39,11 +48,7 @@ const createPage = async (req, res) => {
         const content = template.fields.map(field => ({
             name: field.name,
             type: field.type,
-            value: field.type === 'repeater' ? field.subfields.map(subfield => ({
-                name: subfield.name,
-                type: subfield.type,
-                value: null // Default value for subfields
-            })) : null // Default value for non-repeater fields
+            value: field.type === 'repeater' ? [] : null
         }));
 
         const page = new Page({ name, domain, slug, template: templateId, author, content });
@@ -104,49 +109,55 @@ const updatePage = async (req, res) => {
                 return res.status(404).json({ message: "Template not found" });
             }
         } else {
-            // Use the existing template if no new template is provided
             template = await Template.findById(page.template);
         }
 
-        // Validate and map the content to the template fields
-        let updatedContent = page.content; // Default to existing content
+        let updatedContent = page.content;
 
         if (content) {
             updatedContent = template.fields.map(field => {
-                const incomingField = content.find(c => c.name === field.name);
+                const incomingField = content.find(c => c.name === field.name || c.field === field.name);
 
                 if (!incomingField) {
-                    // If no content is provided for this field, keep the existing value or set default
                     return {
                         name: field.name,
                         type: field.type,
-                        value: field.type === 'repeater' ? field.subfields.map(subfield => ({
-                            name: subfield.name,
-                            type: subfield.type,
-                            value: null // Default value for subfields
-                        })) : null,
-                        subfields: field.subfields || []
+                        value: field.type === 'repeater' ? [] : null
                     };
                 }
 
-                // Map the incoming content to the proper field
+                let fieldValue;
+
+                if (field.type === 'repeater') {
+                    const rowSize = field.subfields.length;
+                    const incoming = incomingField.subfields || [];
+
+                    // Group the flat subfields array into rows
+                    const rows = [];
+                    for (let i = 0; i < incoming.length; i += rowSize) {
+                        rows.push(incoming.slice(i, i + rowSize));
+                    }
+
+                    fieldValue = rows.map(row => {
+                        const rowObject = {};
+                        field.subfields.forEach(subfield => {
+                            const match = row.find(sf => sf.name === subfield.name);
+                            rowObject[subfield.name] = match ? match.value : null;
+                        });
+                        return rowObject;
+                    });
+                } else {
+                    fieldValue = incomingField.value;
+                }
+
                 return {
                     name: field.name,
                     type: field.type,
-                    value: field.type === 'repeater' ? field.subfields.map(subfield => {
-                        const incomingSubfield = incomingField.subfields.find(sf => sf.name === subfield.name);
-                        return {
-                            name: subfield.name,
-                            type: subfield.type,
-                            value: incomingSubfield ? incomingSubfield.value : null
-                        };
-                    }) : incomingField.value,
-                    subfields: field.subfields || []
+                    value: fieldValue
                 };
             });
         }
 
-        // Update the page
         const updatedPage = await Page.findByIdAndUpdate(
             id,
             {
@@ -173,16 +184,14 @@ const updatePage = async (req, res) => {
         });
     } catch (error) {
         if (error.code === 11000) {
-            // Handle duplicate key error (e.g., slug uniqueness)
             res.status(400).json({ error: 'Slug must be unique for this domain.' });
         } else if (error.errors && error.errors.slug) {
-            // Handle slug validation error
             res.status(400).json({ error: error.errors.slug.message });
         } else {
             res.status(500).json({ message: 'Server error', error: error.message });
         }
     }
-}
+};
 
 // Delete an existing page
 const deletePage = async (req, res) => {

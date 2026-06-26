@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const auth = require("../middlewares/authMiddleware");
+const { authMiddleware } = require("../middlewares/authMiddleware");
+const { roleMiddleware } = require("../middlewares/roleMiddleware");
 
 // Load Controllers
 const userController = require('../controllers/users');
 
 // Get all users
-router.get('/users', auth.authMiddleware, userController.getUsers);
+router.get('/users', authMiddleware, roleMiddleware('admin'), userController.getUsers);
 
 // Create User
 router.post('/user/new', userController.newUser);
