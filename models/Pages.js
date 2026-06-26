@@ -1,15 +1,28 @@
 const mongoose = require('mongoose');
 const { validateSlug } = require('../validators/pageValidator');
 
+const ContentSubfieldValueSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },  // matches subfield name in template
+    value: mongoose.Schema.Types.Mixed
+});
+
+const ContentRepeaterRowSchema = new mongoose.Schema({
+    subfields: [ContentSubfieldValueSchema]
+});
+
 // Field schema for content
 const ContentFieldSchema = new mongoose.Schema({
-    name: { type: String, required: true },
+    name: { type: String, required: true },  // matches field name in template
     type: {
         type: String,
         required: true,
         enum: ['text', 'textarea', 'richtext', 'image', 'number', 'boolean', 'url', 'repeater']
     },
-    value: mongoose.Schema.Types.Mixed
+    value: mongoose.Schema.Types.Mixed,         // used for all non-repeater types
+    repeaterValue: [ContentRepeaterRowSchema]   // used only when type === 'repeater'
 });
 
 const pageSchema = new mongoose.Schema({
