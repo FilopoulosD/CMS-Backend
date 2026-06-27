@@ -4,7 +4,7 @@ const Template = require("../models/Templates");
 // Get all pages from a specific domain
 const getPages = async (req, res) => {
     try {
-        const { domainId } = req.params;
+        const domainId = req.domain._id;
         const pages = await Page.find({ domain: domainId });
 
         if (!pages) {
@@ -21,18 +21,17 @@ const getPages = async (req, res) => {
 // Create a new page
 const createPage = async (req, res) => {
     try {
-        const { name, domain, slug, template: templateId } = req.body;
+        const { name, slug, template: templateId } = req.body;
+        const domain = req.domain._id;
+        console.log(domain);
 
-        // if (!name || !domain || !slug || !templateId) {
-        //     return res.status(400).json({ message: "Name, domain, and slug are required" });
-        // }
-        if(!name){
+        if (!name) {
             return res.status(400).json({ message: "Page name is required" });
-        }else if(!slug){
+        } else if (!slug) {
             return res.status(400).json({ message: "Page slug is required" });
-        }else if(!templateId){
+        } else if (!templateId) {
             return res.status(400).json({ message: "Template is required" });
-        }else if (!domain){
+        } else if (!domain) {
             return res.status(400).json({ message: "Domain is required" });
         }
 
@@ -138,14 +137,15 @@ const updatePage = async (req, res) => {
                         rows.push(incoming.slice(i, i + rowSize));
                     }
 
-                    fieldValue = rows.map(row => {
-                        const rowObject = {};
-                        field.subfields.forEach(subfield => {
+                    fieldValue = rows.map(row => ({
+                        subfields: field.subfields.map(subfield => {
                             const match = row.find(sf => sf.name === subfield.name);
-                            rowObject[subfield.name] = match ? match.value : null;
-                        });
-                        return rowObject;
-                    });
+                            return {
+                                name: subfield.name,
+                                value: match ? match.value : null
+                            };
+                        })
+                    }));
                 } else {
                     fieldValue = incomingField.value;
                 }

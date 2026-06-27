@@ -19,7 +19,7 @@ const usersSchema = new mongoose.Schema({
     role: {
         type: String,
         default: 'user'
-    }, // User or Admin
+    }, // User, Editor, Admin, Super Admin
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', usersSchema);

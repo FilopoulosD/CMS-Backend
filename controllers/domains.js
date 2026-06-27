@@ -18,6 +18,8 @@ const newDomain = async (req, res) => {
 
         if (!host) {
             return res.status(400).json({ message: "Host is required" });
+        } else if (host === process.env.UMBRELLA_DOMAIN) {
+            return res.status(400).json({ message: "Host cannot be the umbrella domain" });
         }
 
         const domain = new Domain({ host, parentDomain });

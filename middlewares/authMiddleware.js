@@ -3,7 +3,7 @@ const User = require("../models/Users");
 
 const authMiddleware = async (req, res, next) => {
     try {
-        authHeader = req.headers.authorization;
+        const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return res.status(401).json({ message: "No token" });
         }

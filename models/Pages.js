@@ -62,6 +62,12 @@ const pageSchema = new mongoose.Schema({
         metaTitle: String,
         metaDescription: String,
     },
+    status: {
+        type: String,
+        enum: ['draft', 'published', 'scheduled'],
+        default: 'draft'
+    },
+
     publishedAt: Date,
 
 
