@@ -39,7 +39,6 @@ const getTemplate = async (req, res) => {
         if (!template) {
             return res.status(404).json({ message: "Template not found" });
         }
-
         res.json(template);
     } catch (error) {
         console.log(error);

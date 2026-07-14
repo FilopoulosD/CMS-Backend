@@ -19,16 +19,16 @@ Domains
 router.get('/domains', domainController.getDomains);
 
 // Create a new domain ✅
-router.post('/domain/new', domainController.newDomain);
+router.post('/domains/new', domainController.newDomain);
 
 // Get a single domain by ID ✅
-router.get('/domain/:id', domainController.getDomain);
+router.get('/domains/:id', domainController.getDomain);
 
 // Update an existing domain ✅
-router.put('/domain/:id', domainController.updateDomain);
+router.put('/domains/:id', domainController.updateDomain);
 
 // Delete an existing domain  ✅
-router.delete('/domain/:id', domainController.deleteDomain);
+router.delete('/domains/:id', domainController.deleteDomain);
 
 /*
 Users 
@@ -49,13 +49,13 @@ Templates
 */
 
 // Update an existing template ✅
-router.put('/template/:id', templateController.updateTemplate);
+router.put('/templates/:id', templateController.updateTemplate);
 
 // Delete an existing template ✅
-router.delete('/template/:id', templateController.deleteTemplate);
+router.delete('/templates/:id', templateController.deleteTemplate);
 
 // Create a new template ✅
-router.post('/template/new', templateController.newTemplate);
+router.post('/templates/new', templateController.newTemplate);
 
 
 module.exports = router;

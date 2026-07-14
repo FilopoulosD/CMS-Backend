@@ -11,20 +11,20 @@ router.use(roleMiddleware('admin', 'editor', 'user'));
 router.use(domainMiddleware);
 router.use(nonUmbrellaMiddleware);
 
-// Get all pages for a specific domain
-router.get('/pages', pageController.getPages);
+// Get all pages for a specific domain ✅
+router.get('/', pageController.getPages);
 
-// Create a new page (works only for non umbrella domains)
-router.post('/page/new', pageController.createPage);
+// Create a new page (works only for non umbrella domains) ✅
+router.post('/new', pageController.createPage);
 
-// Get a single page by ID
-router.get('/page/:id', pageController.getPage);
+// Get a single page by ID ✅
+router.get('/:id', pageController.getPage);
 
-// Update an existing page
-router.put('/page/:id', pageController.updatePage);
+// Update an existing page ✅
+router.put('/:id', pageController.updatePage);
 
-// Delete an existing page
-router.delete('/page/:id', pageController.deletePage);
+// Delete an existing page 
+router.delete('/:id', pageController.deletePage);
 
 
 module.exports = router;
